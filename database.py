@@ -12,14 +12,14 @@ load_dotenv()
 # y reutiliza la conexión en lugar de crear una nueva con cada clic."
 @st.cache_resource(show_spinner="Conectando a la base de datos...")
 def init_connection():
-    uri = os.getenv("MONGO_URI")
-    if not uri:
+    url = os.getenv("MONGO_URL")
+    if not url:
         st.error("⚠️ Error: No se encontró la variable MONGO_URI en el archivo .env")
         st.stop()  # Detiene la ejecución de la app
         
     try:
         # Inicializamos el cliente de MongoDB
-        client = MongoClient(uri)
+        client = MongoClient(url)
         # Hacemos un 'ping' rápido para confirmar que el servidor responde
         client.admin.command('ping')
         return client
@@ -37,3 +37,4 @@ db = client[db_name]
 # 3. Exportamos las colecciones directamente para que los desarrolladores las importen
 col_acopios = db["acopios"]
 col_agricultores = db["agricultores"]
+col_usuarios = db["usuarios"]
