@@ -17,6 +17,21 @@ st.title("📝 Registro Rápido de Acopio")
 st.markdown("Ingrese los datos físicos y de calidad del cacao recibido.")
 
 # ==========================================
+# GESTIÓN DE ESTADO (Mensajes y Reseteo)
+# ==========================================
+# 1. Si hay un mensaje de éxito guardado de la ejecución anterior, lo mostramos
+if st.session_state.get("mensaje_exito"):
+    st.success(st.session_state["mensaje_exito"])
+    st.balloons()
+    # Limpiamos el mensaje para que no vuelva a salir
+    del st.session_state["mensaje_exito"]
+
+# 2. Si se activó la bandera de limpiar, reseteamos la cantidad de sacos ANTES de crear el widget
+if st.session_state.get("limpiar_formulario"):
+    st.session_state["input_cantidad_sacos"] = 1
+    st.session_state["limpiar_formulario"] = False
+
+# ==========================================
 # 2. CARGA DE DATOS MAESTROS (Agricultores)
 # ==========================================
 @st.cache_data(ttl=60) # Cacheamos por 60s para no saturar la BD
@@ -166,14 +181,14 @@ if st.button("💾 Registrar Ingreso de Cacao", type="primary", use_container_wi
     
     try:
         col_acopios.insert_one(nuevo_acopio)
-        st.success(f"✅ ¡Acopio registrado con éxito! Ticket: {nuevo_acopio['codigo_ticket']}")
-        st.balloons()
         
-        # Invocamos la limpieza de las variables del estado
-        limpiar_formulario()
+        # 1. Guardamos el mensaje de éxito en la sesión para que sobreviva a la recarga
+        st.session_state["mensaje_exito"] = f"✅ ¡Acopio registrado con éxito! Ticket: {nuevo_acopio['codigo_ticket']}"
         
-        # Usamos st.rerun() para forzar a Streamlit a recargar la página 
-        # y aplicar inmediatamente el valor de "1" en el input de sacos.
+        # 2. Activamos la bandera para que el formulario se limpie al inicio del siguiente ciclo
+        st.session_state["limpiar_formulario"] = True
+        
+        # 3. Recargamos la aplicación de inmediato
         st.rerun() 
         
     except Exception as e:
