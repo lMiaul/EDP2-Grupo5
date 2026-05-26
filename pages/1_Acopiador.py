@@ -38,6 +38,12 @@ dict_agricultores = {f"{a['nombre_completo']} ({a['dni_ruc']})": a for a in list
 # 3. INTERFAZ DE REGISTRO
 # ==========================================
 # Usamos contenedores y columnas para una UI compacta
+
+# Función callback para limpiar el formulario
+def limpiar_formulario():
+    # Solo reseteamos la variable específica de la cantidad de sacos
+    st.session_state["input_cantidad_sacos"] = 1
+
 col1, col2 = st.columns(2)
 
 with col1:
@@ -45,8 +51,23 @@ with col1:
     agric_seleccionado = st.selectbox("Buscar Agricultor:", options=list(dict_agricultores.keys()))
     datos_agric = dict_agricultores[agric_seleccionado]
     
-    st.info(f"**Código:** {datos_agric['codigo_productor']} | **Sector:** {datos_agric['sector_comunidad']}\n"
-            f"**Certificaciones:** {', '.join(datos_agric['certificaciones']) if datos_agric['certificaciones'] else 'Ninguna'}")
+    # MEJORA UX: Tarjeta de información estructurada en columnas
+    with st.container(border=True): # Agrega un borde sutil estilo tarjeta
+        st.markdown(f"**Productor:** {datos_agric['nombre_completo']}")
+        
+        # Subcolumnas para separar la información clave
+        info_col1, info_col2, info_col3 = st.columns(3)
+        with info_col1:
+            st.caption("📍 Sector")
+            st.write(f"**{datos_agric['sector_comunidad']}**")
+        with info_col2:
+            st.caption("🆔 Código")
+            st.write(f"**{datos_agric['codigo_productor']}**")
+        with info_col3:
+            st.caption("🏷️ Certificación")
+            # Si no hay, muestra un guión para mantener el diseño limpio
+            cert = ', '.join(datos_agric['certificaciones']) if datos_agric['certificaciones'] else "-"
+            st.write(f"**{cert}**")
 
 with col2:
     st.subheader("🔬 Control de Calidad")
@@ -57,7 +78,8 @@ with col2:
 st.divider()
 
 st.subheader("⚖️ Pesaje Físico")
-cantidad_sacos = st.number_input("Cantidad de Sacos a pesar", min_value=1, max_value=20, value=1, step=1)
+# Añadimos key="input_cantidad_sacos"
+cantidad_sacos = st.number_input("Cantidad de Sacos a pesar", min_value=1, max_value=20, value=1, step=1, key="input_cantidad_sacos")
 
 # Generar inputs dinámicos según la cantidad de sacos
 detalle_sacos = []
@@ -143,9 +165,16 @@ if st.button("💾 Registrar Ingreso de Cacao", type="primary", use_container_wi
     }
     
     try:
-        # Inserción en MongoDB
         col_acopios.insert_one(nuevo_acopio)
         st.success(f"✅ ¡Acopio registrado con éxito! Ticket: {nuevo_acopio['codigo_ticket']}")
-        st.balloons() # Pequeño detalle visual para confirmar al usuario
+        st.balloons()
+        
+        # Invocamos la limpieza de las variables del estado
+        limpiar_formulario()
+        
+        # Usamos st.rerun() para forzar a Streamlit a recargar la página 
+        # y aplicar inmediatamente el valor de "1" en el input de sacos.
+        st.rerun() 
+        
     except Exception as e:
         st.error(f"❌ Error al guardar en la base de datos: {e}")
