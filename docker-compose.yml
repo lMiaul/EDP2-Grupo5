@@ -1,15 +1,32 @@
 version: '3.8'
 
 services:
+  # Servicio 1: Tu Aplicación Web en Streamlit
   web:
     build: .
-    container_name: logistock_cacao_app
+    container_name: logistock_app
     ports:
       - "8501:8501"
-    env_file:
-      - .env
-    volumes:
-      - .:/app
+    depends_on:
+      - mongodb
+    # Pasamos las variables de entorno al contenedor
     environment:
-      - PYTHONUNBUFFERED=1
+      - MONGO_URL=mongodb://mongodb:27017/
+      - DB_NAME=cac_valleverde
+    # Si la app falla, se reinicia sola
     restart: always
+
+  # Servicio 2: La Base de Datos MongoDB
+  mongodb:
+    image: mongo:latest
+    container_name: logistock_db
+    ports:
+      - "27017:27017"
+    volumes:
+      # Guarda los datos en tu disco local para que no se borren si apagas el contenedor
+      - mongo_data:/data/db
+    restart: always
+
+# Declaramos el volumen persistente
+volumes:
+  mongo_data:
