@@ -28,7 +28,7 @@ def obtener_configuracion(clave):
 @st.cache_resource(show_spinner="Conectando a la base de datos...")
 def init_connection():
     # 1. Buscamos la URL usando nuestra función híbrida
-    url = obtener_configuracion("MONGO_URL")
+    url = obtener_configuracion("MONGODB_URL")
     
     if not url:
         st.error("⚠️ Error: No se encontró la variable MONGO_URL en el entorno ni en secrets.")

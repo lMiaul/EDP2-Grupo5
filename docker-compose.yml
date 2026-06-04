@@ -1,6 +1,16 @@
-version: '3.8'
-
 services:
+  mongo:
+    image: mongo:7
+    container_name: logistock_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db # Persistencia de datos
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js # Seed automático
+    environment:
+      - MONGO_INITDB_DATABASE=cac_valleverde
+    restart: always
+
   web:
     build: .
     container_name: logistock_cacao_app
@@ -12,4 +22,9 @@ services:
       - .:/app
     environment:
       - PYTHONUNBUFFERED=1
+    depends_on:
+      - mongo
     restart: always
+
+volumes:
+  mongo_data: # Volumen persistente para no perder datos entre reinicios
