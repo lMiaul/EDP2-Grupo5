@@ -31,7 +31,7 @@ def init_connection():
     url = obtener_configuracion("MONGODB_URL")
     
     if not url:
-        st.error("⚠️ Error: No se encontró la variable MONGO_URL en el entorno ni en secrets.")
+        st.error("⚠️ Error: No se encontró la variable MONGODB_URL en el entorno ni en secrets.")
         st.stop()  # Detiene la ejecución de la app
         
     try:
