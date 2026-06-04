@@ -13,13 +13,12 @@ services:
 
   web:
     build: .
-    container_name: logistock_cacao_app
+    container_name: logistock_app
     ports:
       - "8501:8501"
-    env_file:
-      - .env
-    volumes:
-      - .:/app
+    depends_on:
+      - mongodb
+    # Pasamos las variables de entorno al contenedor
     environment:
       - PYTHONUNBUFFERED=1
     depends_on:
