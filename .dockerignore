@@ -1,0 +1,31 @@
+# Entorno virtual de Python (NO se necesita, Docker instala sus propias dependencias)
+.venv/
+
+# Control de versiones
+.git/
+.gitignore
+
+# Variables de entorno (se pasan via docker-compose.yml)
+.env
+
+# Notebooks (solo para desarrollo, no para producción)
+notebooks/
+
+# Cache de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Archivos del IDE
+.vscode/
+.idea/
+
+# Scripts de seed (se montan como volumen, no se copian)
+# scripts/ <-- NO excluir, se necesita si se usa entrypoint
+
+# Docker files (no se necesitan dentro del contenedor)
+Dockerfile
+docker-compose.yml
+
+# Documentación
+README.md
